@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${product.name} + ' - Salma Accesorios'">Producto</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+<header class="site-header compact">
+    <a th:href="@{/}" class="brand-title">SALMA ACCESORIOS</a>
+    <a th:href="@{/catalogo}">Catálogo</a>
+</header>
+<main class="product-detail">
+    <section class="gallery">
+        <img th:if="${!product.images.isEmpty()}" th:src="${product.images[0].imageUrl}" th:alt="${product.images[0].altText}">
+        <div th:if="${product.images.isEmpty()}" class="image-placeholder large">SALMA</div>
+    </section>
+    <section>
+        <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+        <p class="eyebrow" th:text="${product.category.name}">Categoría</p>
+        <h1 th:text="${product.name}">Producto</h1>
+        <p class="price" th:text="${@money.cop(product.price)}">$0</p>
+        <p th:text="${product.description}">Descripción</p>
+        <p><strong>Stock:</strong> <span th:text="${product.stock}">0</span> | <strong>Calificación:</strong> <span th:text="${product.averageRating}">0</span></p>
+
+        <form th:action="@{/carrito/agregar}" method="post" class="inline-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <input type="hidden" name="productId" th:value="${product.id}">
+            <label for="quantity">Cantidad</label>
+            <input id="quantity" name="quantity" type="number" min="1" value="1" class="form-control">
+            <button class="btn btn-dark" type="submit" th:disabled="${!product.available}">Agregar al carrito</button>
+        </form>
+
+        <form th:action="@{/favoritos/toggle}" method="post" class="mt-2">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <input type="hidden" name="productId" th:value="${product.id}">
+            <button class="btn btn-outline-dark" type="submit">Guardar favorito</button>
+        </form>
+    </section>
+</main>
+
+<section class="content-section">
+    <h2>Reseñas</h2>
+    <form th:if="${canReview}" th:action="@{/producto/{id}/resenas(id=${product.id})}" method="post" enctype="multipart/form-data" class="review-form">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <label for="rating">Estrellas</label>
+        <select id="rating" name="rating" class="form-select" required>
+            <option value="5">5 estrellas</option>
+            <option value="4">4 estrellas</option>
+            <option value="3">3 estrellas</option>
+            <option value="2">2 estrellas</option>
+            <option value="1">1 estrella</option>
+        </select>
+        <label for="comment">Comentario</label>
+        <textarea id="comment" name="comment" class="form-control" minlength="8" maxlength="800" required></textarea>
+        <label for="imageFile">Foto de la reseña</label>
+        <input id="imageFile" name="imageFile" class="form-control" type="file" accept="image/png,image/jpeg,image/webp">
+        <small>Opcional. Formatos permitidos: JPG, PNG o WEBP.</small>
+        <button class="btn btn-dark" type="submit">Publicar reseña</button>
+    </form>
+
+    <p th:if="${!authenticated}" class="empty-state">Inicia sesión para reseñar productos que ya hayas comprado.</p>
+    <p th:if="${authenticated && !hasPurchasedProduct}" class="empty-state">Solo puedes reseñar este producto después de comprarlo.</p>
+    <p th:if="${authenticated && hasReviewedProduct}" class="empty-state">Ya publicaste una reseña para este producto.</p>
+
+    <article class="review" th:each="review : ${reviews}">
+        <strong th:text="${review.rating} + ' estrellas'">5 estrellas</strong>
+        <p th:text="${review.comment}">Comentario</p>
+        <div class="review-images" th:if="${!review.images.isEmpty()}">
+            <img th:each="image : ${review.images}" th:src="${image.imageUrl}" alt="Foto subida en la reseña">
+        </div>
+        <small th:text="${review.user.username}">usuario</small>
+    </article>
+    <p th:if="${reviews.isEmpty()}" class="empty-state">Este producto aún no tiene reseñas.</p>
+</section>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Favoritos - Salma Accesorios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+<header th:replace="~{fragments :: clientHeader}"></header>
+<main class="content-section">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">Cuenta</p>
+            <h1>Favoritos</h1>
+        </div>
+        <a class="btn btn-outline-dark" th:href="@{/catalogo}">Ver catálogo</a>
+    </div>
+
+    <div class="product-grid" th:if="${!favorites.isEmpty()}">
+        <article class="product-card" th:each="favorite : ${favorites}">
+            <a th:href="@{/producto/{id}(id=${favorite.product.id})}">
+                <img th:if="${!favorite.product.images.isEmpty()}" th:src="${favorite.product.images[0].imageUrl}" th:alt="${favorite.product.images[0].altText}">
+                <div th:if="${favorite.product.images.isEmpty()}" class="image-placeholder">SALMA</div>
+                <h2 th:text="${favorite.product.name}">Producto</h2>
+                <p th:text="${@money.cop(favorite.product.price)}">$0</p>
+            </a>
+        </article>
+    </div>
+
+    <p th:if="${favorites.isEmpty()}" class="empty-state">Aún no tienes favoritos. Puedes guardar productos desde su detalle.</p>
+</main>
+</body>
+</html>
