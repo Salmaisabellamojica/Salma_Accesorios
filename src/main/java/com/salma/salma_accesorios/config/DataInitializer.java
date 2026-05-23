@@ -74,7 +74,43 @@ public class DataInitializer implements CommandLineRunner {
                 "3222222222",
                 "Cali",
                 "Avenida 6N # 23-45",
-                "Cliente123*");
+                "Compra456*");
+
+        createClientIfMissing(
+                "laura.mendez@example.com",
+                "lauramendez",
+                "Laura",
+                "Isabel",
+                "Mendez",
+                "Castro",
+                "3134567890",
+                "Bogota",
+                "Calle 72 # 11-45",
+                "Laura2026*");
+
+        createClientIfMissing(
+                "natalia.giraldo@example.com",
+                "natalia.g",
+                "Natalia",
+                "Andrea",
+                "Giraldo",
+                "Vargas",
+                "3159876543",
+                "Medellin",
+                "Carrera 48 # 18-35",
+                "Natalia789*");
+
+        createClientIfMissing(
+                "sofia.ramirez@example.com",
+                "sofiaramirez",
+                "Sofia",
+                "Valentina",
+                "Ramirez",
+                "Moreno",
+                "3206543210",
+                "Barranquilla",
+                "Calle 84 # 51B-20",
+                "Sofia321*");
     }
 
     private void createClientIfMissing(
