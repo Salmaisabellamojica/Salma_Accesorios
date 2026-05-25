@@ -2,6 +2,7 @@ package com.salma.salma_accesorios.service;
 
 import com.salma.salma_accesorios.dto.ReviewRequest;
 import com.salma.salma_accesorios.model.AppUser;
+import com.salma.salma_accesorios.model.OrderItem;
 import com.salma.salma_accesorios.model.OrderStatus;
 import com.salma.salma_accesorios.model.Product;
 import com.salma.salma_accesorios.model.Review;
@@ -10,7 +11,10 @@ import com.salma.salma_accesorios.repository.OrderItemRepository;
 import com.salma.salma_accesorios.repository.ProductRepository;
 import com.salma.salma_accesorios.repository.ReviewRepository;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +49,26 @@ public class ReviewService {
 
     public boolean canReview(AppUser user, Product product) {
         return hasPurchasedProduct(user, product) && !hasReviewed(user, product);
+    }
+
+    public List<OrderItem> pendingReviewsFor(AppUser user) {
+        List<OrderItem> purchasedItems = orderItemRepository.findReviewablePurchasedItems(
+                user,
+                List.of(OrderStatus.PAGADO, OrderStatus.ENVIADO, OrderStatus.ENTREGADO)
+        );
+        Set<Long> productIds = new LinkedHashSet<>();
+        List<OrderItem> pending = new ArrayList<>();
+        for (OrderItem item : purchasedItems) {
+            Long productId = item.getProduct().getId();
+            if (productIds.add(productId) && !hasReviewed(user, item.getProduct())) {
+                pending.add(item);
+            }
+        }
+        return pending;
+    }
+
+    public List<Review> reviewsBy(AppUser user) {
+        return reviewRepository.findByUserWithProductOrderByCreatedAtDesc(user);
     }
 
     @Transactional

@@ -1,0 +1,58 @@
+﻿<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Detalle del pedido - Salma Accesorios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+<header th:replace="~{fragments :: clientHeader}"></header>
+<main class="content-section">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">Mis compras</p>
+            <h1 th:text="'Pedido #' + ${order.id}">Pedido #1</h1>
+        </div>
+        <a class="btn btn-outline-dark" th:href="@{/pedidos}">Volver a pedidos</a>
+    </div>
+
+    <div class="order-detail-layout">
+        <section class="order-products-gallery">
+            <article th:each="item : ${order.items}" class="order-product-tile">
+                <img th:if="${!item.product.images.isEmpty()}" th:src="${item.product.images[0].imageUrl}" th:alt="${item.product.images[0].altText}">
+                <div th:if="${item.product.images.isEmpty()}" class="image-placeholder">SALMA</div>
+                <div>
+                    <h2 th:text="${item.product.name}">Producto</h2>
+                    <p th:text="${item.product.category.name}">Categoria</p>
+                    <strong th:text="${'x' + item.quantity + ' - ' + @money.cop(item.unitPrice, item.quantity)}">x1</strong>
+                </div>
+            </article>
+        </section>
+        <aside class="payment-summary">
+            <span class="status-pill" th:text="${order.status}">PENDIENTE</span>
+            <div class="tracking-steps" aria-label="Estado del pedido">
+                <div th:classappend="${order.status.name() != 'PENDIENTE' && order.status.name() != 'CANCELADO'} ? 'active'">
+                    <strong>Pago confirmado</strong><span>Recibimos tu pago.</span>
+                </div>
+                <div th:classappend="${order.status.name() == 'PAGADO' || order.status.name() == 'ENVIADO' || order.status.name() == 'ENTREGADO'} ? 'active'">
+                    <strong>Preparando paquete</strong><span>Estamos alistando tus productos.</span>
+                </div>
+                <div th:classappend="${order.status.name() == 'ENVIADO' || order.status.name() == 'ENTREGADO'} ? 'active'">
+                    <strong>En camino</strong><span>Tu paquete va hacia tu direccion.</span>
+                </div>
+                <div th:classappend="${order.status.name() == 'ENTREGADO'} ? 'active'">
+                    <strong>Entregado</strong><span>El pedido fue entregado.</span>
+                </div>
+            </div>
+            <div class="payment-total-line"><span>Envio</span><strong th:text="${order.shippingCost.signum() == 0 ? 'Gratis' : @money.cop(order.shippingCost)}">Gratis</strong></div>
+            <div class="payment-total"><span>Total</span><strong th:text="${@money.cop(order.total)}">$0</strong></div>
+            <a class="btn btn-outline-dark" th:href="@{/devoluciones(orderId=${order.id})}">Solicitar devolucion</a>
+        </aside>
+    </div>
+</main>
+</body>
+</html>
+

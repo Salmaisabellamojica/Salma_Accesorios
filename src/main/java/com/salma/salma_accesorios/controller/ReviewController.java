@@ -1,13 +1,16 @@
 package com.salma.salma_accesorios.controller;
 
 import com.salma.salma_accesorios.dto.ReviewRequest;
+import com.salma.salma_accesorios.model.AppUser;
 import com.salma.salma_accesorios.service.ReviewImageStorageService;
 import com.salma.salma_accesorios.service.ReviewService;
 import com.salma.salma_accesorios.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +32,14 @@ public class ReviewController {
         this.reviewService = reviewService;
         this.userService = userService;
         this.reviewImageStorageService = reviewImageStorageService;
+    }
+
+    @GetMapping("/resenas")
+    public String customerReviews(Authentication authentication, Model model) {
+        AppUser user = userService.currentUser(authentication);
+        model.addAttribute("pendingReviewItems", reviewService.pendingReviewsFor(user));
+        model.addAttribute("myReviews", reviewService.reviewsBy(user));
+        return "resenas";
     }
 
     @PostMapping("/producto/{productId}/resenas")

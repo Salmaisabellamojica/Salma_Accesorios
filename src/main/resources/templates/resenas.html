@@ -1,0 +1,88 @@
+﻿<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mis reseñas - Salma Accesorios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+<header th:replace="~{fragments :: clientHeader}"></header>
+<main class="content-section">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow" th:text="#{client.community}">Comunidad</p>
+            <h1 th:text="#{nav.reviews}">Mis reseñas</h1>
+        </div>
+        <a class="btn btn-outline-dark" th:href="@{/pedidos}" th:text="#{client.orders.view}">Ver pedidos</a>
+    </div>
+
+    <section class="review-dashboard" aria-labelledby="pending-reviews-title">
+        <div class="review-dashboard-head">
+            <div>
+                <p class="eyebrow" th:text="#{client.reviews.pending}">Pendientes</p>
+                <h2 id="pending-reviews-title" th:text="#{client.reviews.pending_products}">Productos por reseñar</h2>
+            </div>
+            <span class="status-pill" th:text="#{client.reviews.pending_count(${pendingReviewItems.size()})}">0 pendientes</span>
+        </div>
+
+        <div class="review-task-grid" th:if="${!pendingReviewItems.isEmpty()}">
+            <article class="review-task-card" th:each="item : ${pendingReviewItems}">
+                <a class="review-task-media" th:href="@{/producto/{id}(id=${item.product.id})}">
+                    <video th:if="${!item.product.images.isEmpty() && #strings.endsWith(item.product.images[0].imageUrl, '.mp4')}" th:src="${item.product.images[0].imageUrl}" autoplay muted loop playsinline></video>
+                    <img th:if="${!item.product.images.isEmpty() && !#strings.endsWith(item.product.images[0].imageUrl, '.mp4')}" th:src="${item.product.images[0].imageUrl}" th:alt="${item.product.images[0].altText}">
+                    <span th:if="${item.product.images.isEmpty()}">SALMA</span>
+                </a>
+                <div class="review-task-body">
+                    <div>
+                        <p class="eyebrow" th:text="'Pedido #' + ${item.order.id}">Pedido #1</p>
+                        <h3 th:text="${item.product.name}">Producto</h3>
+                        <p th:text="'Compraste ' + ${item.quantity} + ' unidad(es) el ' + ${#temporals.format(item.order.createdAt, 'dd/MM/yyyy')}">Compra</p>
+                    </div>
+                    <a class="btn btn-dark" th:href="@{/producto/{id}(id=${item.product.id})} + '#resenas'" th:text="#{client.reviews.review_product}">Reseñar producto</a>
+                </div>
+            </article>
+        </div>
+
+        <p th:if="${pendingReviewItems.isEmpty()}" class="empty-state" th:text="#{client.reviews.pending_empty}">No tienes productos pendientes por reseñar.</p>
+    </section>
+
+    <section class="review-dashboard" aria-labelledby="my-reviews-title">
+        <div class="review-dashboard-head">
+            <div>
+                <p class="eyebrow" th:text="#{client.reviews.history}">Historial</p>
+                <h2 id="my-reviews-title" th:text="#{client.reviews.published}">Reseñas publicadas</h2>
+            </div>
+            <span class="status-pill" th:text="#{client.reviews.published_count(${myReviews.size()})}">0 publicadas</span>
+        </div>
+
+        <div class="review-history-list" th:if="${!myReviews.isEmpty()}">
+            <article class="review-history-card" th:each="review : ${myReviews}">
+                <a class="review-history-media" th:href="@{/producto/{id}(id=${review.product.id})}">
+                    <img th:if="${!review.product.images.isEmpty()}" th:src="${review.product.images[0].imageUrl}" th:alt="${review.product.images[0].altText}">
+                    <span th:if="${review.product.images.isEmpty()}">SALMA</span>
+                </a>
+                <div>
+                    <p class="review-stars" th:text="#{client.reviews.stars(${review.rating})}">5 / 5 estrellas</p>
+                    <h3><a th:href="@{/producto/{id}(id=${review.product.id})}" th:text="${review.product.name}">Producto</a></h3>
+                    <p th:text="${review.comment}">Comentario</p>
+                    <small th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm')}">Fecha</small>
+                    <div class="review-images" th:if="${!review.images.isEmpty()}">
+                        <img th:each="image : ${review.images}" th:src="${image.imageUrl}" alt="Foto de mi reseña">
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <p th:if="${myReviews.isEmpty()}" class="empty-state" th:text="#{client.reviews.empty}">Aún no has publicado reseñas.</p>
+    </section>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+<aside th:replace="~{fragments :: cartDrawer}"></aside>
+<script th:src="@{/js/funcionesjs.js}"></script>
+</body>
+</html>
+
+

@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class FavoriteController {
@@ -27,8 +28,17 @@ public class FavoriteController {
     }
 
     @PostMapping("/favoritos/toggle")
-    public String toggle(Authentication authentication, @RequestParam Long productId) {
+    public String toggle(
+            Authentication authentication,
+            @RequestParam Long productId,
+            @RequestParam(defaultValue = "") String redirectTo) {
         favoriteService.toggle(userService.currentUser(authentication), productId);
-        return "redirect:/producto/" + productId;
+        return "redirect:" + (redirectTo.isBlank() ? "/producto/" + productId : redirectTo);
+    }
+
+    @PostMapping("/favoritos/eliminar")
+    public String remove(Authentication authentication, @RequestParam Long productId) {
+        favoriteService.remove(userService.currentUser(authentication), productId);
+        return "redirect:/favoritos";
     }
 }

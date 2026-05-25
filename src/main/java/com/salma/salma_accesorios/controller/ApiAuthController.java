@@ -7,6 +7,8 @@ import com.salma.salma_accesorios.model.AppUser;
 import com.salma.salma_accesorios.security.CustomUserDetailsService;
 import com.salma.salma_accesorios.security.JwtService;
 import com.salma.salma_accesorios.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Autenticacion API", description = "Registro e inicio de sesion para clientes que consumen la API.")
 public class ApiAuthController {
 
     private final AuthService authService;
@@ -37,6 +40,7 @@ public class ApiAuthController {
     }
 
     @PostMapping("/registro")
+    @Operation(summary = "Registrar usuario", description = "Crea una cuenta de cliente y devuelve un token JWT.")
     public JwtResponse register(@Valid @RequestBody RegisterRequest request) {
         AppUser user = authService.register(request);
         UserDetails details = userDetailsService.loadUserByUsername(user.getEmail());
@@ -44,6 +48,7 @@ public class ApiAuthController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Iniciar sesion", description = "Valida correo y contrasena, y devuelve un token JWT con el rol del usuario.")
     public JwtResponse login(@Valid @RequestBody LoginRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         UserDetails details = userDetailsService.loadUserByUsername(request.getEmail());

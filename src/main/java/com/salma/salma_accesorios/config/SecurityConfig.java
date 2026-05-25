@@ -27,21 +27,28 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             ObjectProvider<JwtAuthenticationFilter> jwtFilterProvider,
-            ObjectProvider<LoginSuccessHandler> loginSuccessHandlerProvider) throws Exception {
+            ObjectProvider<LoginSuccessHandler> loginSuccessHandlerProvider,
+            ObjectProvider<GoogleOAuth2SuccessHandler> googleOAuth2SuccessHandlerProvider) throws Exception {
         AuthenticationSuccessHandler resolvedSuccessHandler = loginSuccessHandlerProvider.getIfAvailable();
         AuthenticationSuccessHandler successHandler = resolvedSuccessHandler != null
                 ? resolvedSuccessHandler
                 : (request, response, authentication) -> response.sendRedirect("/");
+        AuthenticationSuccessHandler resolvedGoogleSuccessHandler = googleOAuth2SuccessHandlerProvider.getIfAvailable();
+        AuthenticationSuccessHandler googleSuccessHandler = resolvedGoogleSuccessHandler != null
+                ? resolvedGoogleSuccessHandler
+                : successHandler;
 
         http
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/registro", "/catalogo", "/css/**", "/js/**", "/img/**", "/uploads/**").permitAll()
+                        .requestMatchers("/registro/google/completar", "/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/producto/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/producto/*/resenas").hasAnyRole("CLIENTE", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/producto/*/resenas").hasRole("CLIENTE")
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/carrito/**", "/checkout/**", "/favoritos/**", "/pedidos/**", "/resenas/**").hasAnyRole("CLIENTE", "ADMIN")
+                        .requestMatchers("/carrito", "/carrito/**", "/checkout", "/checkout/**", "/pago", "/pago/**", "/favoritos", "/favoritos/**", "/pedidos", "/pedidos/**", "/devoluciones", "/devoluciones/**", "/resenas", "/resenas/**").hasRole("CLIENTE")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -51,7 +58,14 @@ public class SecurityConfig {
                         .successHandler(successHandler)
                         .permitAll()
                 )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .successHandler(googleSuccessHandler)
+                )
                 .logout(logout -> logout
+                        .deleteCookies("JSESSIONID")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 )

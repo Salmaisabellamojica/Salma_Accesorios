@@ -27,4 +27,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findTop4ByActiveTrueAndFeaturedTrueOrderByCreatedAtDesc();
 
     List<Product> findTop8ByActiveTrueOrderBySoldCountDesc();
+
+    @EntityGraph(attributePaths = {"category", "images"})
+    List<Product> findTop8ByActiveTrueAndNewCollectionTrueOrderByCreatedAtDesc();
 }

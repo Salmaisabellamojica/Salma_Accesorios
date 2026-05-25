@@ -14,6 +14,15 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @EntityGraph(attributePaths = {"user", "images"})
     List<Review> findByProductAndApprovedTrueOrderByCreatedAtDesc(Product product);
 
+    @Query("""
+            select distinct r from Review r
+            join fetch r.product p
+            left join fetch p.images
+            where r.user = :user
+            order by r.createdAt desc
+            """)
+    List<Review> findByUserWithProductOrderByCreatedAtDesc(@Param("user") AppUser user);
+
     boolean existsByUserAndProduct(AppUser user, Product product);
 
     @Query("select coalesce(avg(r.rating), 0) from Review r where r.product = :product and r.approved = true")

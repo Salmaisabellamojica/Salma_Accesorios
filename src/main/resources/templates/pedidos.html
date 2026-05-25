@@ -1,10 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mis pedidos - Salma Accesorios</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/estilos.css}">
 </head>
 <body>
@@ -12,24 +13,53 @@
 <main class="content-section">
     <div class="section-heading">
         <div>
-            <p class="eyebrow">Cuenta</p>
-            <h1>Mis pedidos</h1>
+            <p class="eyebrow" th:text="#{client.account}">Cuenta</p>
+            <h1 th:text="#{nav.orders}">Mis pedidos</h1>
         </div>
-        <a class="btn btn-outline-dark" th:href="@{/catalogo}">Comprar de nuevo</a>
+        <a class="btn btn-outline-dark" th:href="@{/catalogo}" th:text="#{client.orders.buy_again}">Comprar de nuevo</a>
     </div>
 
     <div class="order-list" th:if="${!orders.isEmpty()}">
         <article class="order-card" th:each="order : ${orders}">
-            <div>
-                <h2 th:text="'Pedido #' + ${order.id}">Pedido #1</h2>
+            <div class="order-card-main">
+                <h2><a th:href="@{/pedidos/{id}(id=${order.id})}" th:text="'Pedido #' + ${order.id}">Pedido #1</a></h2>
                 <p><span class="status-pill" th:text="${order.status}">PENDIENTE</span></p>
+                <ul class="order-items">
+                    <li th:each="item : ${order.items}">
+                        <span th:text="${item.product.name}">Producto</span>
+                        <small th:text="'x' + ${item.quantity} + ' - ' + ${@money.cop(item.unitPrice, item.quantity)}">x1 - $0</small>
+                    </li>
+                </ul>
+                <div class="tracking-steps" aria-label="Estado del pedido">
+                    <div th:classappend="${order.status.name() != 'PENDIENTE' && order.status.name() != 'CANCELADO'} ? 'active'">
+                        <strong th:text="#{client.tracking.payment}">Pago confirmado</strong>
+                        <span th:text="#{client.tracking.payment_text}">Recibimos tu pago.</span>
+                    </div>
+                    <div th:classappend="${order.status.name() == 'PAGADO' || order.status.name() == 'ENVIADO' || order.status.name() == 'ENTREGADO'} ? 'active'">
+                        <strong th:text="#{client.tracking.preparing}">Preparando paquete</strong>
+                        <span th:text="#{client.tracking.preparing_text}">Estamos alistando tus productos.</span>
+                    </div>
+                    <div th:classappend="${order.status.name() == 'ENVIADO' || order.status.name() == 'ENTREGADO'} ? 'active'">
+                        <strong th:text="#{client.tracking.on_way}">En camino</strong>
+                        <span th:text="#{client.tracking.on_way_text}">Tu paquete va hacia tu direccion.</span>
+                    </div>
+                    <div th:classappend="${order.status.name() == 'ENTREGADO'} ? 'active'">
+                        <strong th:text="#{client.tracking.delivered}">Entregado</strong>
+                        <span th:text="#{client.tracking.delivered_text}">El pedido fue entregado.</span>
+                    </div>
+                </div>
             </div>
-            <strong th:text="${@money.cop(order.total)}">$0</strong>
-            <p th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">Fecha</p>
+            <div class="order-card-side">
+                <strong th:text="${@money.cop(order.total)}">$0</strong>
+                <p th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">Fecha</p>
+                <a class="btn btn-outline-dark btn-sm" th:href="@{/devoluciones(orderId=${order.id})}" th:text="#{client.returns.request}">Solicitar devolucion</a>
+            </div>
         </article>
     </div>
 
-    <p th:if="${orders.isEmpty()}" class="empty-state">Aún no tienes pedidos. Explora el catálogo y guarda tus accesorios favoritos.</p>
+    <p th:if="${orders.isEmpty()}" class="empty-state" th:text="#{client.orders.empty}">Aún no tienes pedidos.</p>
 </main>
 </body>
 </html>
+
+

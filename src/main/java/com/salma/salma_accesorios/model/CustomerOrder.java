@@ -46,6 +46,9 @@ public class CustomerOrder {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal total = BigDecimal.ZERO;
 
+    @Column(nullable = false, precision = 12, scale = 2, columnDefinition = "numeric(12,2) default 0")
+    private BigDecimal shippingCost = BigDecimal.ZERO;
+
     @Column(nullable = false, length = 160)
     private String shippingAddress;
 

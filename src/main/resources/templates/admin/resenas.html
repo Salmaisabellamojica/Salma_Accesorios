@@ -1,10 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Reseñas - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/estilos.css}">
 </head>
 <body>
@@ -12,10 +13,10 @@
 <main class="content-section">
     <div class="section-heading">
         <div>
-            <p class="eyebrow">Moderación</p>
-            <h1>Reseñas</h1>
+            <p class="eyebrow" th:text="#{admin.reviews.moderation}">Moderación</p>
+            <h1 th:text="#{admin.nav.reviews}">Reseñas</h1>
         </div>
-        <a class="btn btn-outline-dark" th:href="@{/admin}">Volver al panel</a>
+        <a class="btn btn-outline-dark" th:href="@{/admin}" th:text="#{admin.back}">Volver al panel</a>
     </div>
     <div class="table-card">
         <table class="table align-middle">
@@ -29,7 +30,7 @@
                 <td>
                     <form th:action="@{/admin/resenas/{id}/eliminar(id=${review.id})}" method="post">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                        <button class="btn btn-outline-danger btn-sm" type="submit">Eliminar</button>
+                        <button class="btn btn-outline-danger btn-sm" type="submit" th:text="#{common.delete}">Eliminar</button>
                     </form>
                 </td>
             </tr>
@@ -40,3 +41,5 @@
 </main>
 </body>
 </html>
+
+

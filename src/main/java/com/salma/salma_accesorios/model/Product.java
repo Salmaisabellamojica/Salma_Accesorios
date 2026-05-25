@@ -56,6 +56,9 @@ public class Product {
     @Column(nullable = false)
     private boolean featured = false;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean newCollection = false;
+
     @Column(nullable = false, precision = 3, scale = 2)
     private BigDecimal averageRating = BigDecimal.ZERO;
 

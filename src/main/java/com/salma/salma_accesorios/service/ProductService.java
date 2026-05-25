@@ -61,6 +61,8 @@ public class ProductService {
     @Transactional
     public Product update(Long id, ProductRequest request) {
         Product product = findById(id);
+        product.getImages().forEach(image -> image.setMainImage(false));
+        productRepository.flush();
         apply(product, request);
         return product;
     }
@@ -81,6 +83,7 @@ public class ProductService {
         product.setCategory(category);
         product.setActive(request.isActive());
         product.setFeatured(request.isFeatured());
+        product.setNewCollection(request.isNewCollection());
         product.getImages().clear();
         for (String imageUrl : request.getImageUrls()) {
             if (imageUrl == null || imageUrl.isBlank()) {

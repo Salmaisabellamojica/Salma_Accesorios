@@ -33,5 +33,6 @@ public class ProductRequest {
 
     private boolean active = true;
     private boolean featured = false;
+    private boolean newCollection = false;
     private List<String> imageUrls = new ArrayList<>();
 }

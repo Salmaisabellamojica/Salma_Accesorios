@@ -2,6 +2,7 @@ package com.salma.salma_accesorios.controller;
 
 import com.salma.salma_accesorios.model.Product;
 import com.salma.salma_accesorios.repository.CategoryRepository;
+import com.salma.salma_accesorios.service.FavoriteService;
 import com.salma.salma_accesorios.service.ProductService;
 import com.salma.salma_accesorios.service.ReviewService;
 import com.salma.salma_accesorios.service.UserService;
@@ -20,16 +21,19 @@ public class ProductController {
     private final CategoryRepository categoryRepository;
     private final ReviewService reviewService;
     private final UserService userService;
+    private final FavoriteService favoriteService;
 
     public ProductController(
             ProductService productService,
             CategoryRepository categoryRepository,
             ReviewService reviewService,
-            UserService userService) {
+            UserService userService,
+            FavoriteService favoriteService) {
         this.productService = productService;
         this.categoryRepository = categoryRepository;
         this.reviewService = reviewService;
         this.userService = userService;
+        this.favoriteService = favoriteService;
     }
 
     @GetMapping("/catalogo")
@@ -55,6 +59,7 @@ public class ProductController {
         model.addAttribute("hasPurchasedProduct", reviewService.hasPurchasedProduct(currentUser, product));
         model.addAttribute("hasReviewedProduct", reviewService.hasReviewed(currentUser, product));
         model.addAttribute("canReview", reviewService.canReview(currentUser, product));
+        model.addAttribute("isFavorite", favoriteService.isFavorite(currentUser, product));
         return "producto";
     }
 }

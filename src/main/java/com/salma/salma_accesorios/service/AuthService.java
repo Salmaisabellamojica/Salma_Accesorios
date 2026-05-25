@@ -1,6 +1,7 @@
 package com.salma.salma_accesorios.service;
 
 import com.salma.salma_accesorios.dto.RegisterRequest;
+import com.salma.salma_accesorios.dto.GoogleRegistrationRequest;
 import com.salma.salma_accesorios.model.AppUser;
 import com.salma.salma_accesorios.model.City;
 import com.salma.salma_accesorios.model.Role;
@@ -57,6 +58,42 @@ public class AuthService {
         user.setUsername(username);
         user.setPhone(request.getPhone());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setCity(city);
+        user.setAddress(request.getAddress().trim());
+        user.setRole(Role.CLIENTE);
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public AppUser registerGoogleUser(String email, GoogleRegistrationRequest request) {
+        String normalizedEmail = email.trim().toLowerCase(Locale.ROOT);
+        String username = request.getUsername().trim().toLowerCase(Locale.ROOT);
+        if (userRepository.existsByEmail(normalizedEmail)) {
+            throw new IllegalArgumentException("El correo ya esta registrado");
+        }
+        if (userRepository.existsByUsername(username)) {
+            throw new IllegalArgumentException("El username ya esta registrado");
+        }
+        if (userRepository.existsByPhone(request.getPhone())) {
+            throw new IllegalArgumentException("El celular ya esta registrado");
+        }
+
+        City city = cityRepository.findByNameIgnoreCase(request.getCity().trim())
+                .orElseGet(() -> {
+                    City newCity = new City();
+                    newCity.setName(normalizeName(request.getCity()));
+                    return cityRepository.save(newCity);
+                });
+
+        AppUser user = new AppUser();
+        user.setFirstName(normalizeName(request.getFirstName()));
+        user.setSecondName(blankToNull(request.getSecondName()));
+        user.setFirstLastName(normalizeName(request.getFirstLastName()));
+        user.setSecondLastName(normalizeName(request.getSecondLastName()));
+        user.setEmail(normalizedEmail);
+        user.setUsername(username);
+        user.setPhone(request.getPhone());
+        user.setPassword(passwordEncoder.encode("GOOGLE_OAUTH_USER"));
         user.setCity(city);
         user.setAddress(request.getAddress().trim());
         user.setRole(Role.CLIENTE);

@@ -21,6 +21,8 @@ public class HomeController {
     public String inicio(Model model) {
         ProductRepository repository = productRepository.getIfAvailable();
         model.addAttribute("featuredProducts", repository == null ? List.of() : repository.findTop4ByActiveTrueAndFeaturedTrueOrderByCreatedAtDesc());
+        model.addAttribute("newCollectionProducts", repository == null ? List.of() : repository.findTop8ByActiveTrueAndNewCollectionTrueOrderByCreatedAtDesc());
+        model.addAttribute("bestSellers", repository == null ? List.of() : repository.findTop8ByActiveTrueOrderBySoldCountDesc());
         return "index";
     }
 

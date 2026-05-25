@@ -1,10 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Favoritos - Salma Accesorios</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/estilos.css}">
 </head>
 <body>
@@ -12,24 +13,32 @@
 <main class="content-section">
     <div class="section-heading">
         <div>
-            <p class="eyebrow">Cuenta</p>
-            <h1>Favoritos</h1>
+            <p class="eyebrow" th:text="#{client.account}">Cuenta</p>
+            <h1 th:text="#{nav.favorites}">Favoritos</h1>
         </div>
-        <a class="btn btn-outline-dark" th:href="@{/catalogo}">Ver catálogo</a>
+        <a class="btn btn-outline-dark" th:href="@{/catalogo}" th:text="#{client.view_catalog}">Ver catálogo</a>
     </div>
 
     <div class="product-grid" th:if="${!favorites.isEmpty()}">
         <article class="product-card" th:each="favorite : ${favorites}">
             <a th:href="@{/producto/{id}(id=${favorite.product.id})}">
-                <img th:if="${!favorite.product.images.isEmpty()}" th:src="${favorite.product.images[0].imageUrl}" th:alt="${favorite.product.images[0].altText}">
+                <video th:if="${!favorite.product.images.isEmpty() && #strings.endsWith(favorite.product.images[0].imageUrl, '.mp4')}" th:src="${favorite.product.images[0].imageUrl}" autoplay muted loop playsinline></video>
+                <img th:if="${!favorite.product.images.isEmpty() && !#strings.endsWith(favorite.product.images[0].imageUrl, '.mp4')}" th:src="${favorite.product.images[0].imageUrl}" th:alt="${favorite.product.images[0].altText}">
                 <div th:if="${favorite.product.images.isEmpty()}" class="image-placeholder">SALMA</div>
                 <h2 th:text="${favorite.product.name}">Producto</h2>
                 <p th:text="${@money.cop(favorite.product.price)}">$0</p>
             </a>
+            <form th:action="@{/favoritos/eliminar}" method="post" class="favorite-remove-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden" name="productId" th:value="${favorite.product.id}">
+                <button class="btn btn-outline-danger btn-sm" type="submit"><i class="bi bi-trash"></i> <span th:text="#{common.delete}">Eliminar</span></button>
+            </form>
         </article>
     </div>
 
-    <p th:if="${favorites.isEmpty()}" class="empty-state">Aún no tienes favoritos. Puedes guardar productos desde su detalle.</p>
+    <p th:if="${favorites.isEmpty()}" class="empty-state" th:text="#{client.favorites.empty}">Aún no tienes favoritos.</p>
 </main>
 </body>
 </html>
+
+

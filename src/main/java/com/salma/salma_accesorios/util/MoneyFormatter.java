@@ -16,4 +16,10 @@ public class MoneyFormatter {
         formatter.setMinimumFractionDigits(0);
         return formatter.format(value == null ? BigDecimal.ZERO : value);
     }
+
+    public String cop(BigDecimal value, Integer quantity) {
+        BigDecimal amount = value == null ? BigDecimal.ZERO : value;
+        int safeQuantity = quantity == null ? 0 : quantity;
+        return cop(amount.multiply(BigDecimal.valueOf(safeQuantity)));
+    }
 }

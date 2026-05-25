@@ -1,10 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Carrito - Salma Accesorios</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/estilos.css}">
 </head>
 <body>
@@ -12,34 +13,51 @@
 <main class="content-section">
     <div class="section-heading">
         <div>
-            <p class="eyebrow">Compra</p>
-            <h1>Carrito</h1>
+            <p class="eyebrow" th:text="#{client.cart.eyebrow}">Compra</p>
+            <h1 th:text="#{nav.cart}">Carrito</h1>
         </div>
-        <a class="btn btn-outline-dark" th:href="@{/catalogo}">Seguir comprando</a>
+        <a class="btn btn-outline-dark" th:href="@{/catalogo}" th:text="#{client.continue_shopping}">Seguir comprando</a>
     </div>
     <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
     <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
 
-    <form th:action="@{/carrito/seleccion}" method="post" class="cart-list" th:if="${!cart.items.isEmpty()}">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-        <article class="cart-row" th:each="item : ${cart.items}">
-            <input type="checkbox" name="selectedItems" th:value="${item.id}" th:checked="${item.selected}" th:aria-label="'Seleccionar ' + ${item.product.name}">
+    <div class="cart-list" th:if="${!cart.items.isEmpty()}" data-cart-selection-list>
+        <article class="cart-row" th:each="item : ${cart.items}" th:data-unit-price="${item.product.price}" th:data-quantity="${item.quantity}">
+            <form th:action="@{/carrito/item/seleccion}" method="post" data-cart-selection-form>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden" name="itemId" th:value="${item.id}">
+                <input type="checkbox" name="selected" value="true" th:checked="${item.selected}" th:aria-label="'Seleccionar ' + ${item.product.name}" data-cart-selection-checkbox>
+            </form>
             <div>
                 <h2 th:text="${item.product.name}">Producto</h2>
-                <p th:text="${item.quantity} + ' unidad(es)'">1 unidad</p>
+                <p th:text="#{client.cart.units(${item.quantity})}">1 unidad</p>
             </div>
-            <strong th:text="${@money.cop(item.product.price.multiply(T(java.math.BigDecimal).valueOf(item.quantity)))}">$0</strong>
-            <button class="btn btn-outline-dark" type="submit">Actualizar selección</button>
+            <strong th:text="${@money.cop(item.product.price, item.quantity)}">$0</strong>
+            <form th:action="@{/carrito/eliminar}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden" name="itemId" th:value="${item.id}">
+                <button class="btn btn-outline-danger" type="submit" th:text="#{common.delete}">Eliminar</button>
+            </form>
         </article>
-    </form>
+    </div>
 
-    <p th:if="${cart.items.isEmpty()}" class="empty-state">Tu carrito está vacío.</p>
+    <p th:if="${cart.items.isEmpty()}" class="empty-state" th:text="#{client.cart.empty}">Tu carrito está vacío.</p>
 
     <form th:action="@{/checkout}" method="post" th:if="${!cart.items.isEmpty()}" class="checkout-bar">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-        <p>Solo se compran los productos seleccionados. Los demás quedan guardados.</p>
-        <button class="btn btn-dark" type="submit">Comprar seleccionados</button>
+        <div>
+            <p th:text="#{client.cart.selection_note}">Los productos desmarcados se quedan guardados y no se suman al total.</p>
+            <p class="shipping-note"
+               data-free-shipping-message
+               th:data-threshold="${freeShippingThreshold}"
+               th:data-shipping-cost="${standardShippingCost}"
+               th:text="${shippingCost.signum() == 0 ? 'Envio gratis aplicado por compra desde $ 100.000.' : 'Compra minimo ' + @money.cop(freeShippingThreshold) + ' para obtener envio gratis. Te faltan ' + @money.cop(freeShippingRemaining) + '.'}">Envio gratis</p>
+        </div>
+        <strong data-cart-selected-total th:text="${@money.cop(selectedTotal)}">$0</strong>
+        <button class="btn btn-dark" type="submit" data-checkout-button th:disabled="${selectedTotal.signum() == 0}" th:text="#{client.cart.pay}">Ir a pagar</button>
     </form>
 </main>
 </body>
 </html>
+
+

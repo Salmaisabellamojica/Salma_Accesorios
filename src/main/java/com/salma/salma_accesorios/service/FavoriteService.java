@@ -33,6 +33,16 @@ public class FavoriteService {
         favoriteRepository.save(favorite);
     }
 
+    @Transactional
+    public void remove(AppUser user, Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+        favoriteRepository.deleteByUserAndProduct(user, product);
+    }
+
+    public boolean isFavorite(AppUser user, Product product) {
+        return user != null && favoriteRepository.existsByUserAndProduct(user, product);
+    }
+
     public List<Favorite> list(AppUser user) {
         return favoriteRepository.findByUser(user);
     }

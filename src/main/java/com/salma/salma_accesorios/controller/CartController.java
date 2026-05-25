@@ -3,7 +3,9 @@ package com.salma.salma_accesorios.controller;
 import com.salma.salma_accesorios.model.AppUser;
 import com.salma.salma_accesorios.service.CartService;
 import com.salma.salma_accesorios.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,19 +28,34 @@ public class CartController {
     @GetMapping("/carrito")
     public String cart(Authentication authentication, Model model) {
         AppUser user = userService.currentUser(authentication);
-        model.addAttribute("cart", cartService.getOrCreate(user));
+        var cart = cartService.getOrCreate(user);
+        var subtotal = cartService.selectedSubtotal(cart);
+        model.addAttribute("cart", cart);
+        model.addAttribute("selectedSubtotal", subtotal);
+        model.addAttribute("shippingCost", cartService.shippingCost(subtotal));
+        model.addAttribute("standardShippingCost", CartService.SHIPPING_COST);
+        model.addAttribute("freeShippingRemaining", cartService.freeShippingRemaining(subtotal));
+        model.addAttribute("freeShippingThreshold", CartService.FREE_SHIPPING_THRESHOLD);
+        model.addAttribute("selectedTotal", cartService.selectedTotal(cart));
         return "carrito";
     }
 
     @PostMapping("/carrito/agregar")
-    public String add(Authentication authentication, @RequestParam Long productId, @RequestParam(defaultValue = "1") int quantity, RedirectAttributes redirectAttributes) {
+    public String add(
+            Authentication authentication,
+            @RequestParam Long productId,
+            @RequestParam(defaultValue = "1") int quantity,
+            @RequestParam(defaultValue = "false") boolean openCart,
+            @RequestParam(required = false) String redirectTo,
+            RedirectAttributes redirectAttributes) {
         try {
             cartService.add(userService.currentUser(authentication), productId, quantity);
             redirectAttributes.addFlashAttribute("success", "Producto agregado al carrito");
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
-        return "redirect:/producto/" + productId;
+        String target = redirectTo == null || redirectTo.isBlank() ? "/producto/" + productId : redirectTo;
+        return "redirect:" + target + (openCart ? (target.contains("?") ? "&" : "?") + "cart=open" : "");
     }
 
     @PostMapping("/carrito/seleccion")
@@ -47,17 +64,44 @@ public class CartController {
         return "redirect:/carrito";
     }
 
-    @PostMapping("/carrito/eliminar")
-    public String remove(Authentication authentication, @RequestParam Long itemId) {
-        cartService.remove(userService.currentUser(authentication), itemId);
+    @PostMapping("/carrito/item/seleccion")
+    public Object itemSelection(
+            Authentication authentication,
+            @RequestParam Long itemId,
+            @RequestParam(defaultValue = "false") boolean selected,
+            HttpServletRequest request) {
+        cartService.updateItemSelection(userService.currentUser(authentication), itemId, selected);
+        if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+            return ResponseEntity.noContent().build();
+        }
         return "redirect:/carrito";
+    }
+
+    @PostMapping("/carrito/eliminar")
+    public String remove(
+            Authentication authentication,
+            @RequestParam Long itemId,
+            @RequestParam(required = false) String redirectTo) {
+        cartService.remove(userService.currentUser(authentication), itemId);
+        String target = redirectTo == null || redirectTo.isBlank() ? "/carrito" : redirectTo;
+        return "redirect:" + target + (target.contains("?") ? "&" : "?") + "cart=open";
+    }
+
+    @PostMapping("/carrito/disminuir")
+    public String decrease(
+            Authentication authentication,
+            @RequestParam Long itemId,
+            @RequestParam(required = false) String redirectTo) {
+        cartService.decrease(userService.currentUser(authentication), itemId);
+        String target = redirectTo == null || redirectTo.isBlank() ? "/carrito" : redirectTo;
+        return "redirect:" + target + (target.contains("?") ? "&" : "?") + "cart=open";
     }
 
     @PostMapping("/checkout")
     public String checkout(Authentication authentication, RedirectAttributes redirectAttributes) {
         try {
-            Long orderId = cartService.checkoutSelected(userService.currentUser(authentication)).getId();
-            redirectAttributes.addFlashAttribute("success", "Pedido creado #" + orderId + ". Los productos no seleccionados siguen en tu carrito.");
+            cartService.validateSelected(userService.currentUser(authentication));
+            return "redirect:/pago/carrito";
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }

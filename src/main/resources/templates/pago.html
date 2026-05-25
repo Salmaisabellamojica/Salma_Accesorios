@@ -1,0 +1,163 @@
+﻿<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pago - Salma Accesorios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+<header th:replace="~{fragments :: clientHeader}"></header>
+<main class="content-section payment-layout">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow" th:text="#{payment.secure}">Pago seguro</p>
+            <h1 th:text="#{payment.checkout}">Finalizar compra</h1>
+        </div>
+        <a class="btn btn-outline-dark" th:href="@{${backUrl}}" th:text="#{common.back}">Volver</a>
+    </div>
+
+    <section class="payment-shell">
+        <aside class="payment-summary">
+            <h2 th:text="#{payment.summary}">Resumen</h2>
+            <div class="payment-mini-list">
+                <article th:each="line : ${lines}">
+                    <img th:if="${line.imageUrl() != null}" th:src="${line.imageUrl()}" th:alt="${line.altText()}">
+                    <span th:if="${line.imageUrl() == null}" class="image-placeholder">SALMA</span>
+                    <div>
+                        <strong th:text="${line.name()}">Producto</strong>
+                        <small th:text="${line.category() + ' x ' + line.quantity()}">Categoria x 1</small>
+                    </div>
+                    <b th:text="${@money.cop(line.lineTotal())}">$0</b>
+                </article>
+            </div>
+            <div class="payment-total-line"><span th:text="#{payment.subtotal}">Subtotal</span><strong th:text="${@money.cop(subtotal)}">$0</strong></div>
+            <div class="payment-total-line"><span th:text="#{payment.shipping}">Envio</span><strong th:text="${shippingCost.signum() == 0 ? 'Gratis' : @money.cop(shippingCost)}">Gratis</strong></div>
+            <p class="shipping-note" th:if="${shippingCost.signum() > 0}" th:text="${'Compra minimo ' + @money.cop(freeShippingThreshold) + ' para obtener envio gratis. Te faltan ' + @money.cop(freeShippingRemaining) + '.'}">Envio gratis</p>
+            <p class="shipping-note success" th:if="${shippingCost.signum() == 0}">Envio gratis aplicado por compra desde $ 100.000.</p>
+            <div class="payment-total"><span th:text="#{payment.total}">Total</span><strong th:text="${@money.cop(total)}">$0</strong></div>
+        </aside>
+
+        <section class="payment-panel">
+            <div class="checkout-steps" aria-label="Pasos de pago">
+                <span class="done" th:text="#{nav.cart}">Carrito</span>
+                <span class="active" th:text="#{payment.data_payment}">Datos y pago</span>
+                <span th:text="#{payment.confirmation}">Confirmacion</span>
+            </div>
+
+            <form th:action="${paymentAction + '/revisar'}" th:object="${paymentRequest}" method="post" class="stack-form payment-form" novalidate>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                <h2 th:text="#{payment.your_data}">Tus datos</h2>
+                <div class="form-grid">
+                    <label>Nombre completo
+                        <input th:field="*{customerName}" class="form-control" required autocomplete="name">
+                        <small th:if="${#fields.hasErrors('customerName')}" th:errors="*{customerName}"></small>
+                    </label>
+                    <label>Correo
+                        <input th:field="*{customerEmail}" class="form-control" required autocomplete="email">
+                        <small th:if="${#fields.hasErrors('customerEmail')}" th:errors="*{customerEmail}"></small>
+                    </label>
+                    <label>Telefono
+                        <input th:field="*{customerPhone}" class="form-control" required inputmode="numeric" maxlength="10" autocomplete="tel">
+                        <small th:if="${#fields.hasErrors('customerPhone')}" th:errors="*{customerPhone}"></small>
+                    </label>
+                    <label>Ciudad
+                        <input th:field="*{city}" class="form-control" required>
+                        <small th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></small>
+                    </label>
+                    <label class="full">Direccion de envio
+                        <input th:field="*{shippingAddress}" class="form-control" required autocomplete="street-address">
+                        <small th:if="${#fields.hasErrors('shippingAddress')}" th:errors="*{shippingAddress}"></small>
+                    </label>
+                    <label class="full">Notas del pedido
+                        <textarea th:field="*{notes}" class="form-control" rows="2" maxlength="300" placeholder="Instrucciones de entrega, empaque para regalo, etc."></textarea>
+                    </label>
+                </div>
+
+                <h2 th:text="#{payment.method}">Metodo de pago</h2>
+                <div class="payment-methods">
+                    <label class="pay-method">
+                        <input type="radio" th:field="*{paymentMethod}" value="card" data-payment-method>
+                        <span><i class="bi bi-credit-card"></i><strong>Tarjeta debito / credito</strong><small>Visa o Mastercard de 16 digitos</small></span>
+                    </label>
+                    <label class="pay-method">
+                        <input type="radio" th:field="*{paymentMethod}" value="nequi" data-payment-method>
+                        <span><i class="bi bi-phone"></i><strong>Nequi</strong><small>Aprueba el pago desde tu app</small></span>
+                    </label>
+                    <label class="pay-method">
+                        <input type="radio" th:field="*{paymentMethod}" value="pse" data-payment-method>
+                        <span><i class="bi bi-bank"></i><strong>PSE</strong><small>Debito directo desde tu banco</small></span>
+                    </label>
+                    <label class="pay-method">
+                        <input type="radio" th:field="*{paymentMethod}" value="daviplata" data-payment-method>
+                        <span><i class="bi bi-phone-vibrate"></i><strong>Daviplata</strong><small>Billetera digital</small></span>
+                    </label>
+                    <label class="pay-method">
+                        <input type="radio" th:field="*{paymentMethod}" value="efecty" data-payment-method>
+                        <span><i class="bi bi-shop"></i><strong>Efecty / corresponsal</strong><small>Paga en punto autorizado</small></span>
+                    </label>
+                </div>
+                <small th:if="${#fields.hasErrors('paymentMethod')}" th:errors="*{paymentMethod}"></small>
+
+                <section class="payment-method-panel" data-method-panel="card">
+                    <div class="credit-card-preview" aria-hidden="true">
+                        <div><span>SALMA CARD</span><i class="bi bi-credit-card-2-front"></i></div>
+                        <strong data-card-preview-number>•••• •••• •••• ••••</strong>
+                        <div><small data-card-preview-name>NOMBRE EN TARJETA</small><small data-card-preview-exp>MM/AA</small></div>
+                    </div>
+                    <label>Numero de tarjeta
+                        <input th:field="*{cardNumber}" class="form-control" inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000" autocomplete="cc-number" data-card-number data-max-digits="16">
+                        <small class="form-hint">Ingresa los 16 digitos de la tarjeta. Ejemplo de prueba: 4242 4242 4242 4242.</small>
+                        <small th:if="${#fields.hasErrors('cardNumber')}" th:errors="*{cardNumber}"></small>
+                    </label>
+                    <label>Nombre del titular
+                        <input th:field="*{cardName}" class="form-control" autocomplete="cc-name" data-card-name>
+                        <small th:if="${#fields.hasErrors('cardName')}" th:errors="*{cardName}"></small>
+                    </label>
+                    <div class="form-grid">
+                        <label>Vencimiento
+                            <input th:field="*{expiry}" class="form-control" maxlength="5" placeholder="MM/AA" data-card-exp>
+                            <small class="form-hint">Ejemplo: 12/30.</small>
+                            <small th:if="${#fields.hasErrors('expiry')}" th:errors="*{expiry}"></small>
+                        </label>
+                        <label>CVV
+                            <input th:field="*{cvv}" class="form-control" inputmode="numeric" maxlength="4" autocomplete="cc-csc">
+                            <small th:if="${#fields.hasErrors('cvv')}" th:errors="*{cvv}"></small>
+                        </label>
+                    </div>
+                </section>
+
+                <section class="payment-method-panel" data-method-panel="nequi daviplata">
+                    <label>Celular registrado en la billetera
+                        <input th:field="*{walletPhone}" class="form-control" inputmode="numeric" maxlength="10">
+                        <small th:if="${#fields.hasErrors('walletPhone')}" th:errors="*{walletPhone}"></small>
+                    </label>
+                    <p class="shipping-note">Recibiras una notificacion para aprobar el pago.</p>
+                </section>
+
+                <section class="payment-method-panel" data-method-panel="pse">
+                    <label>Banco
+                        <select th:field="*{bank}" class="form-select">
+                            <option value="">Selecciona tu banco</option>
+                            <option th:each="bank : ${banks}" th:value="${bank}" th:text="${bank}">Banco</option>
+                        </select>
+                        <small th:if="${#fields.hasErrors('bank')}" th:errors="*{bank}"></small>
+                    </label>
+                </section>
+
+                <section class="payment-method-panel" data-method-panel="efecty">
+                    <p class="shipping-note">Generaremos una referencia de pago. Tu pedido se procesara cuando confirmemos el comprobante.</p>
+                </section>
+
+                <button class="btn btn-dark w-100" type="submit"><i class="bi bi-shield-check"></i> <span th:text="#{payment.review}">Revisar pago</span></button>
+            </form>
+        </section>
+    </section>
+</main>
+</body>
+</html>
+
+

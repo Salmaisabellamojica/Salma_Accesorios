@@ -1,5 +1,5 @@
-<!doctype html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+﻿<!doctype html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,49 +9,29 @@
     <link rel="stylesheet" th:href="@{/css/estilos.css}">
 </head>
 <body>
-<header class="site-header">
-    <a th:href="@{/}" class="brand-title" aria-label="Salma Accesorios inicio">SALMA ACCESORIOS</a>
-    <nav aria-label="Principal">
-        <a th:href="@{/catalogo}">Catálogo</a>
-        <a th:href="@{/catalogo(categoria='collares')}">Collares</a>
-        <a th:href="@{/catalogo(categoria='pulseras')}">Pulseras</a>
-        <a th:href="@{/catalogo(categoria='llaveros')}">Llaveros</a>
-    </nav>
-    <div class="header-actions">
-        <a th:href="@{/catalogo}" class="icon-link" aria-label="Buscar"><i class="bi bi-search"></i></a>
-        <a sec:authorize="isAnonymous()" th:href="@{/login}" class="icon-link account-icon" aria-label="Iniciar sesión">
-            <i class="bi bi-person"></i>
-        </a>
-        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}" class="icon-link account-icon" aria-label="Panel administrador">
-            <i class="bi bi-person"></i>
-        </a>
-        <a sec:authorize="hasRole('CLIENTE')" th:href="@{/pedidos}" class="icon-link account-icon" aria-label="Mi cuenta">
-            <i class="bi bi-person"></i>
-        </a>
-        <a th:href="@{/carrito}" class="icon-link" aria-label="Carrito"><i class="bi bi-bag"></i></a>
-    </div>
-</header>
+<header th:replace="~{fragments :: storeHeader}"></header>
 
 <main>
     <section class="hero-band">
         <div class="hero-copy">
-            <p class="eyebrow">original designs</p>
-            <h1>Nueva colección 2026</h1>
-            <p>Joyería artesanal, delicada y luminosa para vestir momentos cotidianos con encanto vintage.</p>
-            <a th:href="@{/catalogo}" class="btn btn-dark">Explorar colección</a>
+            <p class="eyebrow" th:text="${siteContent.heroEyebrow}">original designs</p>
+            <h1 th:text="${siteContent.heroTitle}">Nueva coleccion 2026</h1>
+            <p th:text="${siteContent.heroCopy}">Joyeria artesanal, delicada y luminosa para vestir momentos cotidianos con encanto vintage.</p>
+            <a th:href="@{/#nueva-coleccion}" class="btn btn-dark" th:text="${siteContent.heroButtonLabel}">Explorar coleccion</a>
         </div>
         <div class="hero-visual" aria-label="Collar artesanal de Salma Accesorios">
-            <span>SALMA</span>
+            <img th:if="${siteContent.heroImageUrl != null}" th:src="${siteContent.heroImageUrl}" alt="Nueva coleccion Salma Accesorios">
+            <span th:if="${siteContent.heroImageUrl == null}">SALMA</span>
         </div>
     </section>
 
     <section class="content-section">
-        <div class="section-heading">
-            <h2>Productos destacados</h2>
-            <a th:href="@{/catalogo}">Ver todo</a>
+        <div id="nueva-coleccion" class="section-heading">
+            <h2>Nueva colección</h2>
+            <a th:href="@{/catalogo}">Ver catálogo</a>
         </div>
-        <div class="product-grid featured-showcase" th:if="${!featuredProducts.isEmpty()}">
-            <article class="product-card" th:each="product : ${featuredProducts}">
+        <div class="product-grid featured-showcase" th:if="${!newCollectionProducts.isEmpty()}">
+            <article class="product-card" th:each="product : ${newCollectionProducts}">
                 <a th:href="@{/producto/{id}(id=${product.id})}">
                     <img th:if="${!product.images.isEmpty()}" th:src="${product.images[0].imageUrl}" th:alt="${product.images[0].altText}">
                     <div th:if="${product.images.isEmpty()}" class="image-placeholder">SALMA</div>
@@ -60,24 +40,51 @@
                 </a>
             </article>
         </div>
-        <p th:if="${featuredProducts.isEmpty()}" class="empty-state">Muy pronto verás aquí las piezas destacadas de la colección.</p>
+
+        <div class="section-heading home-section-heading">
+            <h2 th:text="#{home.featured}">Productos destacados</h2>
+            <a th:href="@{/catalogo}" th:text="#{home.view_all}">Ver todo</a>
+        </div>
+        <div class="product-grid featured-showcase" th:if="${!featuredProducts.isEmpty()}">
+            <article class="product-card" th:each="product : ${featuredProducts}">
+                <a th:href="@{/producto/{id}(id=${product.id})}">
+                    <video th:if="${!product.images.isEmpty() && #strings.endsWith(product.images[0].imageUrl, '.mp4')}" th:src="${product.images[0].imageUrl}" autoplay muted loop playsinline></video>
+                    <img th:if="${!product.images.isEmpty() && !#strings.endsWith(product.images[0].imageUrl, '.mp4')}" th:src="${product.images[0].imageUrl}" th:alt="${product.images[0].altText}">
+                    <div th:if="${product.images.isEmpty()}" class="image-placeholder">SALMA</div>
+                    <h3 th:text="${product.name}">Producto</h3>
+                    <p th:text="${@money.cop(product.price)}">$0</p>
+                </a>
+            </article>
+        </div>
+        <p th:if="${featuredProducts.isEmpty()}" class="empty-state" th:text="#{home.empty}">Muy pronto verás aquí las piezas destacadas de la colección.</p>
+
+        <div class="section-heading home-section-heading">
+            <h2>Más vendidos</h2>
+            <a th:href="@{/catalogo}">Ver todo</a>
+        </div>
+        <div class="product-grid featured-showcase" th:if="${!bestSellers.isEmpty()}">
+            <article class="product-card" th:each="product : ${bestSellers}">
+                <a th:href="@{/producto/{id}(id=${product.id})}">
+                    <img th:if="${!product.images.isEmpty()}" th:src="${product.images[0].imageUrl}" th:alt="${product.images[0].altText}">
+                    <div th:if="${product.images.isEmpty()}" class="image-placeholder">SALMA</div>
+                    <h3 th:text="${product.name}">Producto</h3>
+                    <p th:text="${@money.cop(product.price)}">$0</p>
+                </a>
+            </article>
+        </div>
     </section>
 
     <section class="benefits">
-        <div><i class="bi bi-truck"></i><span>Envíos nacionales</span></div>
-        <div><i class="bi bi-heart"></i><span>Favoritos y carrito guardado</span></div>
-        <div><i class="bi bi-shield-check"></i><span>Compra segura</span></div>
-        <div><i class="bi bi-whatsapp"></i><span>Asesoría por WhatsApp</span></div>
+        <div><i class="bi bi-truck"></i><span th:text="#{home.shipping}">Envíos nacionales</span></div>
+        <div><i class="bi bi-heart"></i><span th:text="#{home.saved}">Favoritos y carrito guardado</span></div>
+        <div><i class="bi bi-shield-check"></i><span th:text="#{home.safe}">Compra segura</span></div>
+        <div><i class="bi bi-whatsapp"></i><span th:text="#{home.whatsapp}">Asesoría por WhatsApp</span></div>
     </section>
 </main>
 
-<footer class="footer">
-    <div>
-        <strong>SALMA ACCESORIOS</strong>
-        <p>original designs</p>
-    </div>
-    <a href="https://wa.me/573212292317" target="_blank" rel="noopener">WhatsApp +57 3212292317</a>
-    <span>2026 Salma Accesorios</span>
-</footer>
+<footer th:replace="~{fragments :: footer}"></footer>
+<aside th:replace="~{fragments :: cartDrawer}"></aside>
+<script th:src="@{/js/funcionesjs.js}"></script>
 </body>
 </html>
+

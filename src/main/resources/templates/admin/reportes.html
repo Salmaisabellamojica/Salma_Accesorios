@@ -1,0 +1,32 @@
+﻿<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reportes - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+<header th:replace="~{fragments :: adminHeader}"></header>
+<main class="content-section">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">JasperReports</p>
+            <h1 th:text="#{admin.nav.reports}">Reportes</h1>
+        </div>
+        <a class="btn btn-outline-dark" th:href="@{/admin}" th:text="#{admin.back}">Volver al panel</a>
+    </div>
+    <section class="admin-actions">
+        <a th:each="report : ${reports}" th:href="${report.url}" target="_blank" rel="noopener">
+            <span>
+                <strong th:text="${report.title}">Reporte</strong><br>
+                <small th:text="${report.description}">Descripcion</small>
+            </span>
+        </a>
+    </section>
+</main>
+</body>
+</html>
+

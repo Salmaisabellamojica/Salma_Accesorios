@@ -1,10 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Panel administrador - Salma Accesorios</title>
+    <title th:text="#{admin.dashboard.title} + ' - Salma Accesorios'">Panel administrador - Salma Accesorios</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/estilos.css}">
 </head>
 <body>
@@ -12,26 +13,31 @@
 <main class="content-section admin-panel">
     <div class="section-heading">
         <div>
-            <p class="eyebrow">Administración</p>
-            <h1>Panel inicial</h1>
+            <p class="eyebrow" th:text="#{admin.eyebrow}">Administración</p>
+            <h1 th:text="#{admin.nav.dashboard}">Panel inicial</h1>
         </div>
-        <a class="btn btn-dark" th:href="@{/admin/productos/nuevo}">Crear producto</a>
+        <a class="btn btn-dark" th:href="@{/admin/productos/nuevo}" th:text="#{admin.nav.create_product}">Crear producto</a>
     </div>
 
     <div class="stats-grid">
-        <a th:href="@{/admin/usuarios}"><span th:text="${usersCount}">0</span><p>Usuarios registrados</p></a>
-        <a th:href="@{/admin/productos}"><span th:text="${productsCount}">0</span><p>Productos activos</p></a>
-        <a th:href="@{/admin/pedidos}"><span th:text="${pendingOrders}">0</span><p>Pedidos pendientes</p></a>
-        <a th:href="@{/admin/pedidos}"><span th:text="${@money.cop(totalSales)}">$0</span><p>Ventas acumuladas</p></a>
+        <a th:href="@{/admin/usuarios}"><span th:text="${usersCount}">0</span><p th:text="#{admin.stats.users}">Usuarios registrados</p></a>
+        <a th:href="@{/admin/productos}"><span th:text="${productsCount}">0</span><p th:text="#{admin.stats.products}">Productos activos</p></a>
+        <a th:href="@{/admin/pedidos}"><span th:text="${pendingOrders}">0</span><p th:text="#{admin.stats.pending_orders}">Pedidos pendientes</p></a>
+        <a th:href="@{/admin/pedidos}"><span th:text="${@money.cop(totalSales)}">$0</span><p th:text="#{admin.stats.sales}">Ventas acumuladas</p></a>
     </div>
 
     <section class="admin-actions">
-        <a th:href="@{/admin/productos}">Gestionar productos</a>
-        <a th:href="@{/admin/usuarios}">Gestionar usuarios</a>
-        <a th:href="@{/admin/pedidos}">Cambiar estados de pedidos</a>
-        <a th:href="@{/admin/resenas}">Moderar reseñas</a>
-        <a th:href="@{/catalogo}">Abrir tienda</a>
+        <a th:href="@{/admin/productos}" th:text="#{admin.action.manage_products}">Gestionar productos</a>
+        <a th:href="@{/admin/usuarios}" th:text="#{admin.action.manage_users}">Gestionar usuarios</a>
+        <a th:href="@{/admin/pedidos}" th:text="#{admin.action.order_status}">Cambiar estados de pedidos</a>
+        <a th:href="@{/admin/devoluciones}" th:text="#{admin.action.manage_returns}">Gestionar devoluciones</a>
+        <a th:href="@{/admin/contenido}" th:text="#{admin.action.edit_content}">Editar inicio y footer</a>
+        <a th:href="@{/admin/reportes}" th:text="#{admin.action.jasper_reports}">Reportes Jasper</a>
+        <a th:href="@{/admin/resenas}" th:text="#{admin.action.moderate_reviews}">Moderar reseñas</a>
+        <a th:href="@{/swagger-ui.html}" target="_blank" rel="noopener" th:text="#{admin.action.api_docs}">Documentacion API</a>
+        <a th:href="@{/catalogo}" th:text="#{admin.action.open_store}">Abrir tienda</a>
     </section>
 </main>
 </body>
 </html>
+
