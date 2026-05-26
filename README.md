@@ -1,6 +1,6 @@
 # SALMA ACCESORIOS
 
-Proyecto final universitario de Ingenieria de Software.
+Proyecto final Programación Web.
 SALMA ACCESORIOS es un e-commerce de accesorios artesanales como collares, pulseras, anillos y llaveros.
 
 ## Tecnologias
@@ -15,44 +15,6 @@ SALMA ACCESORIOS es un e-commerce de accesorios artesanales como collares, pulse
 - HTML, CSS, Bootstrap y JavaScript
 - Lombok
 
-## Estructura del Proyecto
-
-Esta estructura sigue la convencion profesional de Maven y Spring Boot:
-
-```text
-salma_accesorios/
-|-- database/
-|   `-- schema.sql
-|-- src/
-|   |-- main/
-|   |   |-- java/com/salma/salma_accesorios/
-|   |   |   |-- config/
-|   |   |   |-- controller/
-|   |   |   |-- dto/
-|   |   |   |-- model/
-|   |   |   |-- repository/
-|   |   |   |-- security/
-|   |   |   `-- service/
-|   |   `-- resources/
-|   |       |-- static/
-|   |       |   |-- css/
-|   |       |   |-- img/
-|   |       |   `-- js/
-|   |       |-- templates/
-|   |       `-- application.properties
-|   `-- test/
-|-- uploads/
-|   |-- products/
-|   `-- reviews/
-|-- .gitignore
-|-- mvnw
-|-- mvnw.cmd
-|-- pom.xml
-`-- README.md
-```
-
-No se recomienda meter todo dentro de otra carpeta llamada `proyecto`, porque GitHub ya muestra el repositorio como carpeta principal. Ademas, Maven espera encontrar `pom.xml` en la raiz.
-
 ## Base de Datos
 
 La base de datos se llama:
@@ -64,14 +26,14 @@ salma_accesorios
 El script completo esta en:
 
 ```text
-database/schema.sql
+database/salma_accesorios.sql
 ```
 
 En pgAdmin:
 
 1. Crear o seleccionar la base `salma_accesorios`.
 2. Abrir Query Tool sobre esa base.
-3. Ejecutar el contenido de `database/schema.sql`.
+3. Ejecutar el contenido de `database/salma_accesorios.sql`.
 
 ## Usuarios de Prueba
 
@@ -97,7 +59,7 @@ Desde la raiz del proyecto:
 Luego abrir:
 
 ```text
-http://localhost:8080
+http://localhost:8443
 ```
 
 ## Imagenes
@@ -125,7 +87,7 @@ Las imagenes subidas por pruebas no deben subirse al repositorio. Por eso la car
 - El panel administrador solo se muestra despues de iniciar sesion como ADMIN.
 - El cliente puede usar catalogo, carrito, favoritos y pedidos.
 - El carrito permite seleccionar solo algunos productos para comprar.
-- Las resenas solo se pueden crear si el usuario compro el producto.
+- Las reseñas solo se pueden crear si el usuario compro el producto.
 - Los precios se muestran en pesos colombianos.
 
 ## Pruebas

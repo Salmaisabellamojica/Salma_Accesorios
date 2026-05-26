@@ -2,11 +2,10 @@
 -- SALMA ACCESORIOS - SCRIPT DE INICIALIZACION
 -- Compatible con las entidades Java actuales del proyecto.
 --
--- Uso recomendado:
+-- Uso:
 -- 1. Crear la base de datos: salma_accesorios
--- 2. Abrir Query Tool en esa base.
--- 3. Ejecutar este script completo.
--- 4. Iniciar la app con: .\mvnw.cmd spring-boot:run
+-- 2. Ejecutar este script completo.
+-- 3. Iniciar la app con: .\mvnw.cmd spring-boot:run
 -- =====================================================
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
@@ -34,7 +33,7 @@ DROP FUNCTION IF EXISTS refresh_product_average_rating() CASCADE;
 DROP FUNCTION IF EXISTS create_cart_for_new_user() CASCADE;
 
 -- =====================================================
--- TABLAS BASE
+-- TABLAS
 -- =====================================================
 
 CREATE TABLE cities (
@@ -271,7 +270,7 @@ CREATE INDEX idx_reviews_approved ON reviews (approved);
 CREATE INDEX idx_review_images_review ON review_images (review_id);
 
 -- =====================================================
--- TRIGGERS UTILES
+-- TRIGGERS
 -- =====================================================
 
 CREATE OR REPLACE FUNCTION create_cart_for_new_user()
